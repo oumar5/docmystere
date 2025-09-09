@@ -1,4 +1,3 @@
-
 import {z} from 'genkit';
 
 // Schema for generating a case
@@ -8,7 +7,7 @@ export const SoloCaseInputSchema = z.object({
 export type SoloCaseInput = z.infer<typeof SoloCaseInputSchema>;
 
 export const SoloCaseSchema = z.object({
-  specialty: z.string().describe('The specialty of the case.'),
+  specialty: z.string().describe('The specialty of the case, as requested by the user.'),
   caseDescription: z.string().describe('A detailed description of the clinical case, including patient history, symptoms, and exam findings. Should be presented in French.'),
   diagnosis: z.string().describe('The correct diagnosis for the case. Should be in French.'),
 });

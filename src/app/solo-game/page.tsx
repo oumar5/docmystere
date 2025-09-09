@@ -19,6 +19,8 @@ import {
   SoloCaseEvaluation,
 } from "@/ai/flows/solo-case-assistant";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { specialties } from "@/constants/specialties";
 
 export default function SoloGamePage() {
   const [caseState, setCaseState] = useState<"idle" | "loading" | "loaded">("idle");
@@ -26,14 +28,16 @@ export default function SoloGamePage() {
   const [clinicalCase, setClinicalCase] = useState<SoloCase | null>(null);
   const [diagnosis, setDiagnosis] = useState("");
   const [evaluation, setEvaluation] = useState<SoloCaseEvaluation | null>(null);
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>("");
 
   const handleGenerateCase = async () => {
+    if (!selectedSpecialty) return;
     setCaseState("loading");
     setEvaluation(null);
     setDiagnosis("");
     setEvaluationState("idle");
     try {
-      const newCase = await generateSoloCase({ specialty: "Cardiologie" }); // Hardcoded for now
+      const newCase = await generateSoloCase({ specialty: selectedSpecialty });
       setClinicalCase(newCase);
       setCaseState("loaded");
     } catch (error) {
@@ -83,9 +87,21 @@ export default function SoloGamePage() {
           </CardHeader>
           <CardContent className="space-y-6">
             {caseState === "idle" && (
-              <div className="text-center space-y-4">
-                 <p className="text-muted-foreground">Prêt à relever un nouveau défi ?</p>
-                <Button onClick={handleGenerateCase}>
+              <div className="text-center space-y-4 max-w-sm mx-auto">
+                 <p className="text-muted-foreground">Choisissez une spécialité pour commencer.</p>
+                 <Select onValueChange={setSelectedSpecialty} value={selectedSpecialty}>
+                   <SelectTrigger>
+                     <SelectValue placeholder="Choisir une spécialité..." />
+                   </SelectTrigger>
+                   <SelectContent>
+                     {specialties.map((spec) => (
+                       <SelectItem key={spec.value} value={spec.label}>
+                         {spec.label}
+                       </SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+                <Button onClick={handleGenerateCase} disabled={!selectedSpecialty}>
                   <Lightbulb className="mr-2"/>
                   Générer un cas clinique
                 </Button>
@@ -156,7 +172,7 @@ export default function SoloGamePage() {
                 )}
 
                 <div className="pt-4 border-t text-center">
-                    <Button onClick={handleGenerateCase} variant="outline">
+                    <Button onClick={() => setCaseState('idle')} variant="outline">
                         Générer un autre cas
                     </Button>
                 </div>
