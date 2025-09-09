@@ -30,8 +30,8 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { specialties } from "@/constants/specialties";
-import type { Specialty } from "@/constants/specialties";
+import specialties from "@/data/specialties.json";
+import type { Specialty } from "@/types/specialty";
 
 const formSchema = z.object({
   nickname: z
@@ -67,7 +67,7 @@ export default function CreateGamePage() {
   }
 
   const selectedSpecialtyValue = form.watch("specialty");
-  const selectedSpecialty = specialties.find(s => s.value === selectedSpecialtyValue);
+  const selectedSpecialty = (specialties as Specialty[]).find(s => s.value === selectedSpecialtyValue);
 
   return (
     <main className="flex items-center justify-center min-h-screen p-4 bg-background">

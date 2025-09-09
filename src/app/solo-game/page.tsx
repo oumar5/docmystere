@@ -20,8 +20,8 @@ import {
 } from "@/ai/flows/solo-case-assistant";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { specialties } from "@/constants/specialties";
-import type { Specialty } from "@/constants/specialties";
+import specialties from "@/data/specialties.json";
+import type { Specialty } from "@/types/specialty";
 
 export default function SoloGamePage() {
   const [caseState, setCaseState] = useState<"idle" | "loading" | "loaded">("idle");
@@ -32,7 +32,7 @@ export default function SoloGamePage() {
   const [selectedSpecialtyValue, setSelectedSpecialtyValue] = useState<string>("");
   const [selectedSubSpecialtyValue, setSelectedSubSpecialtyValue] = useState<string>("");
 
-  const selectedSpecialty = specialties.find(s => s.value === selectedSpecialtyValue);
+  const selectedSpecialty = (specialties as Specialty[]).find(s => s.value === selectedSpecialtyValue);
 
   const handleGenerateCase = async () => {
     const specialtyToUse = selectedSpecialty?.subSpecialties?.find(s => s.value === selectedSubSpecialtyValue) || selectedSpecialty;
