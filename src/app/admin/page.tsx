@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -66,6 +67,8 @@ export default function AdminPage() {
           ...data[key],
         }));
         setSpecialties(specialtiesList);
+      } else {
+        setSpecialties([]);
       }
     });
 
@@ -80,13 +83,6 @@ export default function AdminPage() {
         parentId: values.parentId || null,
         createdAt: serverTimestamp(),
       });
-
-      // Update parent's childrenIds if parentId is provided
-      if (values.parentId) {
-        const parentRef = ref(database, `specialties/${values.parentId}`);
-        // This is a simplified version. A real-world scenario would involve a transaction.
-        // For now, we assume childrenIds is managed separately or not at all in this simplified model.
-      }
 
       toast({
         title: "Succès !",
@@ -143,8 +139,8 @@ export default function AdminPage() {
                     <FormItem>
                       <FormLabel>Spécialité Parente (Optionnel)</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value ?? ""}
+                        onValueChange={(value) => field.onChange(value === "none" ? null : value)}
+                        value={field.value ?? "none"}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -152,7 +148,7 @@ export default function AdminPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">
+                          <SelectItem value="none">
                             Aucune (Spécialité principale)
                           </SelectItem>
                           {specialties.map((spec) => (
