@@ -75,7 +75,7 @@ export default function CreateGamePage() {
             Créer une partie
           </CardTitle>
           <CardDescription>
-            Configurez votre partie de Mystère Diagnostique.
+            Configurez votre partie de Doc Mystère.
           </CardDescription>
         </CardHeader>
         <CardContent>

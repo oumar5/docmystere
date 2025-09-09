@@ -12,7 +12,7 @@ import { ArrowRight, BrainCircuit, User, Users } from "lucide-react";
 export default function PlayPage() {
   const gameModes = [
     {
-      title: "Mystère Diagnostique",
+      title: "Doc Mystère",
       description:
         "Démasquez les imposteurs parmi les médecins. Un jeu de déduction sociale.",
       href: "/create-game",

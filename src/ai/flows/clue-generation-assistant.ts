@@ -1,7 +1,7 @@
 'use server';
 
 /**
- * @fileOverview An AI assistant for generating clue suggestions for the Diagnosis Decipher game.
+ * @fileOverview An AI assistant for generating clue suggestions for the Doc Mystère game.
  *
  * This file exports:
  * - `generateClueSuggestions`: An asynchronous function that takes game state and player role as input and returns clue suggestions.
@@ -41,7 +41,7 @@ const prompt = ai.definePrompt({
   name: 'clueGenerationPrompt',
   input: {schema: ClueGenerationInputSchema},
   output: {schema: ClueSuggestionOutputSchema},
-  prompt: `You are an AI assistant designed to help players in the Diagnosis Decipher game come up with clue suggestions.
+  prompt: `You are an AI assistant designed to help players in the Doc Mystère game come up with clue suggestions.
 
 You will receive the player's role, their secret word (if applicable), clues given by other players, and the medical specialty of the game.
 

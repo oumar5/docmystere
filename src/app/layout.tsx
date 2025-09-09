@@ -3,7 +3,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: "Diagnosis Decipher",
+  title: "Doc Mystère",
   description: "Le jeu de déduction médicale où votre diagnostic est votre meilleure arme.",
 };
 

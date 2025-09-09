@@ -10,7 +10,7 @@ export default function Home() {
         <div className="flex justify-center items-center gap-4">
           <Stethoscope className="h-12 w-12 md:h-16 md:w-16 text-primary" />
           <h1 className="text-4xl md:text-6xl font-bold font-headline text-primary">
-            Diagnosis Decipher
+            Doc Mystère
           </h1>
         </div>
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
