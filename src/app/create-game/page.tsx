@@ -30,7 +30,8 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { specialties, subSpecialties } from "@/constants/specialties";
+import { specialties } from "@/constants/specialties";
+import type { Specialty } from "@/constants/specialties";
 
 const formSchema = z.object({
   nickname: z
@@ -65,7 +66,8 @@ export default function CreateGamePage() {
     router.push(`/lobby/${gameId}?host=true&nickname=${values.nickname}`);
   }
 
-  const selectedSpecialty = form.watch("specialty");
+  const selectedSpecialtyValue = form.watch("specialty");
+  const selectedSpecialty = specialties.find(s => s.value === selectedSpecialtyValue);
 
   return (
     <main className="flex items-center justify-center min-h-screen p-4 bg-background">
@@ -137,9 +139,7 @@ export default function CreateGamePage() {
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        disabled={
-                          !selectedSpecialty || !subSpecialties[selectedSpecialty]
-                        }
+                        disabled={!selectedSpecialty || !selectedSpecialty.subSpecialties}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -147,8 +147,7 @@ export default function CreateGamePage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {selectedSpecialty &&
-                            subSpecialties[selectedSpecialty]?.map((subSpec) => (
+                          {selectedSpecialty?.subSpecialties?.map((subSpec) => (
                               <SelectItem key={subSpec.value} value={subSpec.value}>
                                 {subSpec.label}
                               </SelectItem>

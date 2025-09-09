@@ -20,7 +20,8 @@ import {
 } from "@/ai/flows/solo-case-assistant";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { specialties, subSpecialties } from "@/constants/specialties";
+import { specialties } from "@/constants/specialties";
+import type { Specialty } from "@/constants/specialties";
 
 export default function SoloGamePage() {
   const [caseState, setCaseState] = useState<"idle" | "loading" | "loaded">("idle");
@@ -28,22 +29,20 @@ export default function SoloGamePage() {
   const [clinicalCase, setClinicalCase] = useState<SoloCase | null>(null);
   const [diagnosis, setDiagnosis] = useState("");
   const [evaluation, setEvaluation] = useState<SoloCaseEvaluation | null>(null);
-  const [selectedSpecialty, setSelectedSpecialty] = useState<string>("");
-  const [selectedSubSpecialty, setSelectedSubSpecialty] = useState<string>("");
+  const [selectedSpecialtyValue, setSelectedSpecialtyValue] = useState<string>("");
+  const [selectedSubSpecialtyValue, setSelectedSubSpecialtyValue] = useState<string>("");
+
+  const selectedSpecialty = specialties.find(s => s.value === selectedSpecialtyValue);
 
   const handleGenerateCase = async () => {
-    const specialtyToUse = selectedSubSpecialty || selectedSpecialty;
+    const specialtyToUse = selectedSpecialty?.subSpecialties?.find(s => s.value === selectedSubSpecialtyValue) || selectedSpecialty;
     if (!specialtyToUse) return;
     setCaseState("loading");
     setEvaluation(null);
     setDiagnosis("");
     setEvaluationState("idle");
     try {
-      const specialtyLabel = 
-        subSpecialties[selectedSpecialty]?.find(s => s.value === selectedSubSpecialty)?.label ||
-        specialties.find(s => s.value === selectedSpecialty)?.label;
-
-      const newCase = await generateSoloCase({ specialty: specialtyLabel || specialtyToUse });
+      const newCase = await generateSoloCase({ specialty: specialtyToUse.label });
       setClinicalCase(newCase);
       setCaseState("loaded");
     } catch (error) {
@@ -71,8 +70,8 @@ export default function SoloGamePage() {
   
   const resetGame = () => {
     setCaseState('idle');
-    setSelectedSpecialty("");
-    setSelectedSubSpecialty("");
+    setSelectedSpecialtyValue("");
+    setSelectedSubSpecialtyValue("");
   }
 
 
@@ -103,9 +102,9 @@ export default function SoloGamePage() {
                  <p className="text-muted-foreground">Choisissez une spécialité pour commencer.</p>
                  <div className="space-y-2">
                   <Select onValueChange={(value) => {
-                    setSelectedSpecialty(value);
-                    setSelectedSubSpecialty("");
-                  }} value={selectedSpecialty}>
+                    setSelectedSpecialtyValue(value);
+                    setSelectedSubSpecialtyValue("");
+                  }} value={selectedSpecialtyValue}>
                     <SelectTrigger>
                       <SelectValue placeholder="Choisir une spécialité..." />
                     </SelectTrigger>
@@ -117,13 +116,13 @@ export default function SoloGamePage() {
                       ))}
                     </SelectContent>
                   </Select>
-                   {selectedSpecialty && subSpecialties[selectedSpecialty] && (
-                     <Select onValueChange={setSelectedSubSpecialty} value={selectedSubSpecialty}>
+                   {selectedSpecialty && selectedSpecialty.subSpecialties && (
+                     <Select onValueChange={setSelectedSubSpecialtyValue} value={selectedSubSpecialtyValue}>
                        <SelectTrigger>
                          <SelectValue placeholder="Choisir une sous-spécialité..." />
                        </SelectTrigger>
                        <SelectContent>
-                         {subSpecialties[selectedSpecialty].map((subSpec) => (
+                         {selectedSpecialty.subSpecialties.map((subSpec) => (
                            <SelectItem key={subSpec.value} value={subSpec.value}>
                              {subSpec.label}
                            </SelectItem>
@@ -132,7 +131,7 @@ export default function SoloGamePage() {
                      </Select>
                    )}
                  </div>
-                <Button onClick={handleGenerateCase} disabled={!selectedSpecialty}>
+                <Button onClick={handleGenerateCase} disabled={!selectedSpecialtyValue}>
                   <Lightbulb className="mr-2"/>
                   Générer un cas clinique
                 </Button>
