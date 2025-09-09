@@ -34,12 +34,12 @@ export default function SoloGamePage() {
 
   const allSpecialties = specialties as Specialty[];
   const mainSpecialties = allSpecialties.filter(s => !s.parent);
-  const selectedSpecialty = allSpecialties.find(s => s.value === selectedSpecialtyValue);
-  const subSpecialties = selectedSpecialty ? allSpecialties.filter(s => s.parent === selectedSpecialty.value) : [];
+  const subSpecialties = allSpecialties.filter(s => s.parent === selectedSpecialtyValue);
 
 
   const handleGenerateCase = async () => {
-    const specialtyLabelToUse = allSpecialties.find(s => s.value === (selectedSubSpecialtyValue || selectedSpecialtyValue))?.label;
+    const specialtyToUse = selectedSubSpecialtyValue || selectedSpecialtyValue;
+    const specialtyLabelToUse = allSpecialties.find(s => s.value === specialtyToUse)?.label;
     if (!specialtyLabelToUse) return;
 
     setCaseState("loading");
@@ -123,7 +123,7 @@ export default function SoloGamePage() {
                       ))}
                     </SelectContent>
                   </Select>
-                   {selectedSpecialty && subSpecialties.length > 0 && (
+                   {subSpecialties.length > 0 && (
                      <Select onValueChange={setSelectedSubSpecialtyValue} value={selectedSubSpecialtyValue}>
                        <SelectTrigger>
                          <SelectValue placeholder="Choisir une sous-spécialité..." />

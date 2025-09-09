@@ -67,7 +67,10 @@ export default function CreateGamePage() {
   }
 
   const selectedSpecialtyValue = form.watch("specialty");
-  const selectedSpecialty = (specialties as Specialty[]).find(s => s.value === selectedSpecialtyValue);
+  const allSpecialties = specialties as Specialty[];
+  const mainSpecialties = allSpecialties.filter(spec => !spec.parent);
+  const subSpecialties = allSpecialties.filter(s => s.parent === selectedSpecialtyValue);
+
 
   return (
     <main className="flex items-center justify-center min-h-screen p-4 bg-background">
@@ -119,7 +122,7 @@ export default function CreateGamePage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {(specialties as Specialty[]).filter(spec => !spec.parent).map((spec) => (
+                          {mainSpecialties.map((spec) => (
                             <SelectItem key={spec.value} value={spec.value}>
                               {spec.label}
                             </SelectItem>
@@ -139,7 +142,7 @@ export default function CreateGamePage() {
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        disabled={!selectedSpecialty || !(specialties as Specialty[]).some(s => s.parent === selectedSpecialty.value)}
+                        disabled={!selectedSpecialtyValue || subSpecialties.length === 0}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -147,7 +150,7 @@ export default function CreateGamePage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {(specialties as Specialty[]).filter(s => s.parent === selectedSpecialty?.value).map((subSpec) => (
+                          {subSpecialties.map((subSpec) => (
                               <SelectItem key={subSpec.value} value={subSpec.value}>
                                 {subSpec.label}
                               </SelectItem>
