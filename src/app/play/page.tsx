@@ -23,16 +23,16 @@ export default function PlayPage() {
       title: "Diagnostic en solo",
       description:
         "Entraînez-vous seul à résoudre des cas cliniques complexes.",
-      href: "#",
+      href: "/solo-game",
       icon: User,
-      enabled: false,
+      enabled: true,
     },
     {
       title: "Défi tournant",
       description: "Affrontez vos amis dans un mode de jeu rapide et compétitif.",
-      href: "#",
+      href: "/challenge-game",
       icon: BrainCircuit,
-      enabled: false,
+      enabled: true,
     },
   ];
 
