@@ -9,6 +9,7 @@ export interface Player {
   isEliminated: boolean;
   isYou: boolean;
   votes: number;
+  isHost?: boolean;
 }
 
 export interface Clue {
@@ -17,11 +18,12 @@ export interface Clue {
 }
 
 export interface GameState {
-  phase: "role_reveal" | "clue_giving" | "voting" | "vote_result" | "end_game";
+  phase: "lobby" | "role_reveal" | "clue_giving" | "voting" | "vote_result" | "end_game";
   round: number;
   players: Player[];
   clues: Clue[];
   eliminatedPlayer: Player | null;
   winner?: "Doctors" | "Impostors";
   specialty: string;
+  difficulty: string;
 }

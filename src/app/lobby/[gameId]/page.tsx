@@ -15,6 +15,10 @@ import { User, Copy, Users, Hourglass, Sprout, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { database } from "@/lib/firebase";
+import { ref, onValue, set, get } from "firebase/database";
+import type { Player } from "@/types/game";
+
 
 export default function LobbyPage() {
   const router = useRouter();
@@ -28,28 +32,47 @@ export default function LobbyPage() {
   const specialty = searchParams.get("specialty");
   const difficulty = searchParams.get("difficulty");
 
-
-  const [players, setPlayers] = useState<string[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
 
   useEffect(() => {
-    // Mock player joining
-    if (nickname) {
-      setPlayers((prev) => [...new Set([...prev, nickname])]);
+    if (!gameId || !nickname) return;
+
+    const gameRef = ref(database, `games/${gameId}`);
+    const playersRef = ref(database, `games/${gameId}/players`);
+    const playerRef = ref(database, `games/${gameId}/players/${nickname}`);
+
+    if (isHost) {
+        set(gameRef, {
+            specialty,
+            difficulty,
+            phase: 'lobby',
+            players: {
+                [nickname]: {
+                    id: nickname,
+                    name: nickname,
+                    isHost: true,
+                }
+            }
+        });
+    } else {
+       set(playerRef, {
+            id: nickname,
+            name: nickname,
+            isHost: false,
+        });
     }
 
-    const mockPlayers = ["Dr. Cuddy", "Dr. Foreman", "Dr. Cameron"];
-    let playerIndex = 0;
-    const interval = setInterval(() => {
-      if (players.length < 4 && playerIndex < mockPlayers.length) {
-        setPlayers((prev) => [...new Set([...prev, mockPlayers[playerIndex]])]);
-        playerIndex++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 2000);
+    const unsubscribe = onValue(playersRef, (snapshot) => {
+        const playersData = snapshot.val();
+        if (playersData) {
+            setPlayers(Object.values(playersData));
+        }
+    });
 
-    return () => clearInterval(interval);
-  }, [nickname]);
+    return () => unsubscribe();
+
+  }, [gameId, nickname, isHost, specialty, difficulty]);
+
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(gameId);
@@ -118,7 +141,7 @@ export default function LobbyPage() {
                   className="flex items-center gap-3 p-3 bg-secondary rounded-lg"
                 >
                   <User className="h-5 w-5 text-accent" />
-                  <span className="font-medium">{player}</span>
+                  <span className="font-medium">{player.name}</span>
                 </div>
               ))}
             </div>

@@ -11,6 +11,8 @@ import { GameState, Player } from "@/types/game";
 import { Loader2 } from "lucide-react";
 import EndGamePhase from "@/components/game/end-game-phase";
 import { mockPlayers } from "@/constants/game";
+import { database } from "@/lib/firebase";
+import { ref, onValue, set } from "firebase/database";
 
 export default function GamePage() {
   const [gameState, setGameState] = useState<GameState | null>(null);
@@ -19,47 +21,65 @@ export default function GamePage() {
   const gameId = params.gameId as string;
   const searchParams = useSearchParams();
   const specialty = searchParams.get("specialty") || "Médecine générale";
+  const nickname = searchParams.get("nickname");
 
   useEffect(() => {
-    // Initialize game state
-    setGameState({
-      phase: "role_reveal",
-      round: 1,
-      players: mockPlayers,
-      clues: [],
-      eliminatedPlayer: null,
-      specialty: specialty,
+    const gameRef = ref(database, `games/${gameId}`);
+
+    const unsubscribe = onValue(gameRef, (snapshot) => {
+        const state = snapshot.val();
+        if (state) {
+            setGameState(state);
+        } else {
+            // Initial state for the host
+             const initialGameState = {
+                phase: "role_reveal",
+                round: 1,
+                players: mockPlayers.map(p => p.name === 'Vous' ? {...p, id: nickname, name: nickname} : p),
+                clues: [],
+                eliminatedPlayer: null,
+                specialty: specialty,
+             };
+             set(gameRef, initialGameState);
+        }
     });
-  }, [specialty]);
+
+    return () => unsubscribe();
+  }, [gameId, specialty, nickname]);
+
+  const updateGameState = (newState: Partial<GameState>) => {
+      const gameRef = ref(database, `games/${gameId}`);
+      set(gameRef, { ...gameState, ...newState });
+  }
 
   const nextPhase = () => {
     if (!gameState) return;
 
     switch (gameState.phase) {
       case "role_reveal":
-        setGameState((prev) => (prev ? { ...prev, phase: "clue_giving" } : null));
+        updateGameState({ phase: "clue_giving" });
         break;
       case "clue_giving":
         if (gameState.clues.length === gameState.players.filter((p) => !p.isEliminated).length) {
-          setGameState((prev) => (prev ? { ...prev, phase: "voting" } : null));
+          updateGameState({ phase: "voting" });
         }
         break;
       case "voting":
         const players = [...gameState.players];
-        const target = players.find((p) => p.role !== "Doctor" && !p.isEliminated) || players.find((p) => !p.isYou && !p.isEliminated);
+        const target = players.find((p) => p.role !== "Doctor" && !p.isEliminated) || players.find((p) => p.name !== nickname && !p.isEliminated);
         if (target) {
-          players.find((p) => p.id === "2")!.votes = 1;
+          const you = players.find(p => p.name === nickname);
+          if (you) you.votes = 1;
           target.votes = 2;
 
           const eliminatedPlayer = { ...target, isEliminated: true };
           const updatedPlayers = players.map((p) => (p.id === eliminatedPlayer.id ? eliminatedPlayer : p));
 
-          setGameState((prev) => prev ? {
-              ...prev,
+          updateGameState({
               phase: "vote_result",
               players: updatedPlayers,
               eliminatedPlayer: eliminatedPlayer,
-            } : null
+            }
           );
         }
         break;
@@ -68,17 +88,16 @@ export default function GamePage() {
         const impostors = gameState.players.filter((p) => (p.role === "MisguidedDoctor" || p.role === "MysteryDoc") && !p.isEliminated);
 
         if (impostors.length === 0) {
-          setGameState((prev) => prev ? { ...prev, phase: "end_game", winner: "Doctors" } : null);
+          updateGameState({ phase: "end_game", winner: "Doctors" });
         } else if (impostors.length >= doctors.length) {
-          setGameState((prev) => prev ? { ...prev, phase: "end_game", winner: "Impostors" } : null);
+          updateGameState({ phase: "end_game", winner: "Impostors" });
         } else {
-          setGameState((prev) => prev ? {
-              ...prev,
+          updateGameState({
               phase: "clue_giving",
-              round: prev.round + 1,
+              round: gameState.round + 1,
               clues: [],
               eliminatedPlayer: null,
-            } : null
+            }
           );
         }
         break;
@@ -89,24 +108,24 @@ export default function GamePage() {
   };
 
   const handleClueSubmit = (clue: string, playerId: string) => {
-    setGameState((prev) => {
-      if (!prev) return null;
-      const player = prev.players.find((p) => p.id === playerId);
-      if (!player) return prev;
-      const newClue = { player: player.name, clue };
-      const updatedClues = [...prev.clues, newClue];
-      const newState = { ...prev, clues: updatedClues };
+    if (!gameState) return;
+    const player = gameState.players.find((p) => p.id === playerId);
+    if (!player) return;
+    const newClue = { player: player.name, clue };
+    const updatedClues = [...(gameState.clues || []), newClue];
+    
+    const newState: Partial<GameState> = { clues: updatedClues };
 
-      const activePlayers = prev.players.filter((p) => !p.isEliminated);
-      if (updatedClues.length === activePlayers.length) {
-        setTimeout(() => nextPhase(), 1000);
-      }
-      return newState;
-    });
+    const activePlayers = gameState.players.filter((p) => !p.isEliminated);
+    if (updatedClues.length === activePlayers.length) {
+        setTimeout(() => updateGameState({ phase: 'voting'}), 1000);
+    }
+    updateGameState(newState);
   };
 
   const handleVote = (votedPlayerId: string) => {
     console.log(`Voted for ${votedPlayerId}`);
+    // Voting logic will be handled server-side or in a more robust client-side way
     nextPhase();
   };
 
@@ -114,9 +133,9 @@ export default function GamePage() {
     return <div className="flex items-center justify-center min-h-screen"><Loader2 className="h-16 w-16 animate-spin text-primary" /></div>;
   }
 
-  const player = gameState.players.find((p) => p.isYou)!;
+  const player = gameState.players.find((p) => p.name === nickname);
   if (!player) {
-     return <div className="flex items-center justify-center min-h-screen"><Loader2 className="h-16 w-16 animate-spin text-primary" /></div>;
+     return <div className="text-center p-8">Erreur : joueur non trouvé. Tentative de reconnexion... <Loader2 className="inline-block h-6 w-6 animate-spin text-primary" /></div>;
   }
 
   return (
