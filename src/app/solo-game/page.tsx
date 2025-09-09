@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,18 +21,16 @@ import {
 } from "@/ai/flows/solo-case-assistant";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import specialties from "@/data/specialties.json";
-import specialtyRelations from "@/data/specialty-relations.json";
+import { database } from "@/lib/firebase";
+import { ref, onValue } from "firebase/database";
 
-type SpecialtyData = {
-    [key: string]: { label: string };
-}
-const specialtiesData = specialties as SpecialtyData;
 
-type SpecialtyRelationData = {
-    [key: string]: { parentId: string | null; childrenIds: string[] };
+interface Specialty {
+  id: string;
+  label: string;
+  parentId?: string | null;
+  childrenIds?: string[];
 }
-const specialtyRelationsData = specialtyRelations as SpecialtyRelationData;
 
 export default function SoloGamePage() {
   const [caseState, setCaseState] = useState<"idle" | "loading" | "loaded">("idle");
@@ -40,30 +38,47 @@ export default function SoloGamePage() {
   const [clinicalCase, setClinicalCase] = useState<SoloCase | null>(null);
   const [diagnosis, setDiagnosis] = useState("");
   const [evaluation, setEvaluation] = useState<SoloCaseEvaluation | null>(null);
+  
+  const [specialties, setSpecialties] = useState<Specialty[]>([]);
   const [selectedSpecialtyValue, setSelectedSpecialtyValue] = useState<string>("");
   const [selectedSubSpecialtyValue, setSelectedSubSpecialtyValue] = useState<string>("");
 
-  const mainSpecialties = Object.keys(specialtyRelationsData).filter(
-    (key) => specialtyRelationsData[key].parentId === null
-  );
+  useEffect(() => {
+    const specialtiesRef = ref(database, 'specialties');
+    onValue(specialtiesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const specialtiesList: Specialty[] = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+        
+        const specialtyMap = new Map(specialtiesList.map(s => [s.id, {...s, childrenIds: [] as string[]}]));
+        specialtiesList.forEach(s => {
+          if (s.parentId && specialtyMap.has(s.parentId)) {
+            specialtyMap.get(s.parentId)?.childrenIds.push(s.id);
+          }
+        });
 
-  const subSpecialties = selectedSpecialtyValue 
-    ? specialtyRelationsData[selectedSpecialtyValue].childrenIds 
-    : [];
+        setSpecialties(Array.from(specialtyMap.values()));
+      }
+    });
+  }, []);
 
+  const mainSpecialties = specialties.filter((spec) => !spec.parentId);
+  const selectedSpecialty = specialties.find(s => s.id === selectedSpecialtyValue);
+  const subSpecialties = selectedSpecialty?.childrenIds?.map(id => specialties.find(s => s.id === id)).filter(Boolean) as Specialty[] || [];
 
   const handleGenerateCase = async () => {
-    const specialtyToUse = selectedSubSpecialtyValue || selectedSpecialtyValue;
+    const specialtyToUseId = selectedSubSpecialtyValue || selectedSpecialtyValue;
+    if (!specialtyToUseId) return;
+
+    const specialtyToUse = specialties.find(s => s.id === specialtyToUseId);
     if (!specialtyToUse) return;
-    const specialtyLabelToUse = specialtiesData[specialtyToUse]?.label;
-    if (!specialtyLabelToUse) return;
 
     setCaseState("loading");
     setEvaluation(null);
     setDiagnosis("");
     setEvaluationState("idle");
     try {
-      const newCase = await generateSoloCase({ specialty: specialtyLabelToUse });
+      const newCase = await generateSoloCase({ specialty: specialtyToUse.label });
       setClinicalCase(newCase);
       setCaseState("loaded");
     } catch (error) {
@@ -132,9 +147,9 @@ export default function SoloGamePage() {
                       <SelectValue placeholder="Choisir une spécialité..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {mainSpecialties.map((specKey) => (
-                        <SelectItem key={specKey} value={specKey}>
-                          {specialtiesData[specKey].label}
+                      {mainSpecialties.map((spec) => (
+                        <SelectItem key={spec.id} value={spec.id}>
+                          {spec.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -145,9 +160,9 @@ export default function SoloGamePage() {
                          <SelectValue placeholder="Choisir une sous-spécialité..." />
                        </SelectTrigger>
                        <SelectContent>
-                         {subSpecialties.map((subSpecKey) => (
-                           <SelectItem key={subSpecKey} value={subSpecKey}>
-                             {specialtiesData[subSpecKey].label}
+                         {subSpecialties.map((subSpec) => (
+                           <SelectItem key={subSpec.id} value={subSpec.id}>
+                             {subSpec.label}
                            </SelectItem>
                          ))}
                        </SelectContent>

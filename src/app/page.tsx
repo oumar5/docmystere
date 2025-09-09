@@ -1,4 +1,4 @@
-import { Stethoscope } from "lucide-react";
+import { Stethoscope, Cog } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { JoinGameDialog } from "@/components/home/join-game-dialog";
@@ -24,8 +24,14 @@ export default function Home() {
           <JoinGameDialog />
         </div>
       </div>
-      <footer className="absolute bottom-4 text-sm text-muted-foreground">
-        <p>Une version sans authentification du jeu.</p>
+      <footer className="absolute bottom-4 text-center w-full">
+         <Button asChild variant="ghost">
+             <Link href="/admin">
+                <Cog className="mr-2"/>
+                Admin
+             </Link>
+         </Button>
+        <p className="text-sm text-muted-foreground mt-2">Une version sans authentification du jeu.</p>
       </footer>
     </div>
   );

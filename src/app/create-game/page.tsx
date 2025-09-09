@@ -31,18 +31,16 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import specialties from "@/data/specialties.json";
-import specialtyRelations from "@/data/specialty-relations.json";
+import { useEffect, useState } from "react";
+import { database } from "@/lib/firebase";
+import { ref, onValue } from "firebase/database";
 
-type SpecialtyData = {
-    [key: string]: { label: string };
+interface Specialty {
+  id: string;
+  label: string;
+  parentId?: string | null;
+  childrenIds?: string[];
 }
-const specialtiesData = specialties as SpecialtyData;
-
-type SpecialtyRelationData = {
-    [key: string]: { parentId: string | null; childrenIds: string[] };
-}
-const specialtyRelationsData = specialtyRelations as SpecialtyRelationData;
 
 const formSchema = z.object({
   nickname: z
@@ -64,6 +62,8 @@ const formSchema = z.object({
 
 export default function CreateGamePage() {
   const router = useRouter();
+  const [specialties, setSpecialties] = useState<Specialty[]>([]);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -71,10 +71,31 @@ export default function CreateGamePage() {
     },
   });
 
+  useEffect(() => {
+    const specialtiesRef = ref(database, 'specialties');
+    onValue(specialtiesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const specialtiesList: Specialty[] = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+        
+        // Reconstruct childrenIds client-side
+        const specialtyMap = new Map(specialtiesList.map(s => [s.id, {...s, childrenIds: [] as string[]}]));
+        specialtiesList.forEach(s => {
+          if (s.parentId) {
+            specialtyMap.get(s.parentId)?.childrenIds.push(s.id);
+          }
+        });
+
+        setSpecialties(Array.from(specialtyMap.values()));
+      }
+    });
+  }, []);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     const gameId = Math.random().toString(36).substring(2, 7).toUpperCase();
-    const finalSpecialty = values.subSpecialty || values.specialty;
-    const specialtyLabel = specialtiesData[finalSpecialty]?.label || "Inconnue";
+    const finalSpecialtyId = values.subSpecialty || values.specialty;
+    const specialty = specialties.find(s => s.id === finalSpecialtyId);
+    const specialtyLabel = specialty?.label || "Inconnue";
 
     const queryParams = new URLSearchParams({
         host: "true",
@@ -87,14 +108,10 @@ export default function CreateGamePage() {
   }
 
   const selectedSpecialtyValue = form.watch("specialty");
+  const selectedSpecialty = specialties.find(s => s.id === selectedSpecialtyValue);
   
-  const mainSpecialties = Object.keys(specialtyRelationsData).filter(
-    (key) => specialtyRelationsData[key].parentId === null
-  );
-
-  const subSpecialties = selectedSpecialtyValue 
-    ? specialtyRelationsData[selectedSpecialtyValue].childrenIds 
-    : [];
+  const mainSpecialties = specialties.filter((spec) => !spec.parentId);
+  const subSpecialties = selectedSpecialty?.childrenIds?.map(id => specialties.find(s => s.id === id)).filter(Boolean) as Specialty[] || [];
 
 
   return (
@@ -147,9 +164,9 @@ export default function CreateGamePage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {mainSpecialties.map((specKey) => (
-                            <SelectItem key={specKey} value={specKey}>
-                              {specialtiesData[specKey].label}
+                          {mainSpecialties.map((spec) => (
+                            <SelectItem key={spec.id} value={spec.id}>
+                              {spec.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -175,9 +192,9 @@ export default function CreateGamePage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {subSpecialties.map((subSpecKey) => (
-                              <SelectItem key={subSpecKey} value={subSpecKey}>
-                                {specialtiesData[subSpecKey].label}
+                          {subSpecialties.map((subSpec) => (
+                              <SelectItem key={subSpec.id} value={subSpec.id}>
+                                {subSpec.label}
                               </SelectItem>
                             ))}
                         </SelectContent>
