@@ -105,7 +105,10 @@ export default function CreateGamePage() {
                     <FormItem>
                       <FormLabel>Spécialité</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          form.resetField("subSpecialty");
+                        }}
                         defaultValue={field.value}
                       >
                         <FormControl>

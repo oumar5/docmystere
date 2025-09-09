@@ -20,7 +20,7 @@ import {
 } from "@/ai/flows/solo-case-assistant";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { specialties } from "@/constants/specialties";
+import { specialties, subSpecialties } from "@/constants/specialties";
 
 export default function SoloGamePage() {
   const [caseState, setCaseState] = useState<"idle" | "loading" | "loaded">("idle");
@@ -29,15 +29,21 @@ export default function SoloGamePage() {
   const [diagnosis, setDiagnosis] = useState("");
   const [evaluation, setEvaluation] = useState<SoloCaseEvaluation | null>(null);
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>("");
+  const [selectedSubSpecialty, setSelectedSubSpecialty] = useState<string>("");
 
   const handleGenerateCase = async () => {
-    if (!selectedSpecialty) return;
+    const specialtyToUse = selectedSubSpecialty || selectedSpecialty;
+    if (!specialtyToUse) return;
     setCaseState("loading");
     setEvaluation(null);
     setDiagnosis("");
     setEvaluationState("idle");
     try {
-      const newCase = await generateSoloCase({ specialty: selectedSpecialty });
+      const specialtyLabel = 
+        subSpecialties[selectedSpecialty]?.find(s => s.value === selectedSubSpecialty)?.label ||
+        specialties.find(s => s.value === selectedSpecialty)?.label;
+
+      const newCase = await generateSoloCase({ specialty: specialtyLabel || specialtyToUse });
       setClinicalCase(newCase);
       setCaseState("loaded");
     } catch (error) {
@@ -62,6 +68,12 @@ export default function SoloGamePage() {
       setEvaluationState("idle");
     }
   };
+  
+  const resetGame = () => {
+    setCaseState('idle');
+    setSelectedSpecialty("");
+    setSelectedSubSpecialty("");
+  }
 
 
   return (
@@ -89,18 +101,37 @@ export default function SoloGamePage() {
             {caseState === "idle" && (
               <div className="text-center space-y-4 max-w-sm mx-auto">
                  <p className="text-muted-foreground">Choisissez une spécialité pour commencer.</p>
-                 <Select onValueChange={setSelectedSpecialty} value={selectedSpecialty}>
-                   <SelectTrigger>
-                     <SelectValue placeholder="Choisir une spécialité..." />
-                   </SelectTrigger>
-                   <SelectContent>
-                     {specialties.map((spec) => (
-                       <SelectItem key={spec.value} value={spec.label}>
-                         {spec.label}
-                       </SelectItem>
-                     ))}
-                   </SelectContent>
-                 </Select>
+                 <div className="space-y-2">
+                  <Select onValueChange={(value) => {
+                    setSelectedSpecialty(value);
+                    setSelectedSubSpecialty("");
+                  }} value={selectedSpecialty}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choisir une spécialité..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {specialties.map((spec) => (
+                        <SelectItem key={spec.value} value={spec.value}>
+                          {spec.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                   {selectedSpecialty && subSpecialties[selectedSpecialty] && (
+                     <Select onValueChange={setSelectedSubSpecialty} value={selectedSubSpecialty}>
+                       <SelectTrigger>
+                         <SelectValue placeholder="Choisir une sous-spécialité..." />
+                       </SelectTrigger>
+                       <SelectContent>
+                         {subSpecialties[selectedSpecialty].map((subSpec) => (
+                           <SelectItem key={subSpec.value} value={subSpec.value}>
+                             {subSpec.label}
+                           </SelectItem>
+                         ))}
+                       </SelectContent>
+                     </Select>
+                   )}
+                 </div>
                 <Button onClick={handleGenerateCase} disabled={!selectedSpecialty}>
                   <Lightbulb className="mr-2"/>
                   Générer un cas clinique
@@ -172,7 +203,7 @@ export default function SoloGamePage() {
                 )}
 
                 <div className="pt-4 border-t text-center">
-                    <Button onClick={() => setCaseState('idle')} variant="outline">
+                    <Button onClick={resetGame} variant="outline">
                         Générer un autre cas
                     </Button>
                 </div>
