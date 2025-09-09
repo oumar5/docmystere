@@ -1,3 +1,4 @@
+
 export type PlayerRole = "Doctor" | "MisguidedDoctor" | "MysteryDoc";
 
 export interface Player {
@@ -22,4 +23,5 @@ export interface GameState {
   clues: Clue[];
   eliminatedPlayer: Player | null;
   winner?: "Doctors" | "Impostors";
+  specialty: string;
 }

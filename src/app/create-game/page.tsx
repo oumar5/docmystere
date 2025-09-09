@@ -73,8 +73,17 @@ export default function CreateGamePage() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const gameId = Math.random().toString(36).substring(2, 7).toUpperCase();
-    console.log("Creating game with settings:", values);
-    router.push(`/lobby/${gameId}?host=true&nickname=${values.nickname}`);
+    const finalSpecialty = values.subSpecialty || values.specialty;
+    const specialtyLabel = specialtiesData[finalSpecialty]?.label || "Inconnue";
+
+    const queryParams = new URLSearchParams({
+        host: "true",
+        nickname: values.nickname,
+        specialty: specialtyLabel,
+        difficulty: values.difficulty,
+    });
+
+    router.push(`/lobby/${gameId}?${queryParams.toString()}`);
   }
 
   const selectedSpecialtyValue = form.watch("specialty");

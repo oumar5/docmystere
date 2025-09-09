@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,9 +11,10 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Copy, Users, Hourglass } from "lucide-react";
+import { User, Copy, Users, Hourglass, Sprout, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
 export default function LobbyPage() {
   const router = useRouter();
@@ -23,6 +25,9 @@ export default function LobbyPage() {
   const gameId = params.gameId as string;
   const isHost = searchParams.get("host") === "true";
   const nickname = searchParams.get("nickname");
+  const specialty = searchParams.get("specialty");
+  const difficulty = searchParams.get("difficulty");
+
 
   const [players, setPlayers] = useState<string[]>([]);
 
@@ -55,8 +60,15 @@ export default function LobbyPage() {
   };
 
   const startGame = () => {
-    router.push(`/game/${gameId}`);
+    const queryParams = new URLSearchParams(searchParams);
+    router.push(`/game/${gameId}?${queryParams.toString()}`);
   };
+
+  const difficultyMap: {[key: string]: string} = {
+    "1": "Facile",
+    "2": "Moyen",
+    "3": "Difficile"
+  }
 
   return (
     <main className="flex items-center justify-center min-h-screen p-4 bg-background">
@@ -73,6 +85,11 @@ export default function LobbyPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
+          <div className="flex flex-wrap justify-center gap-4">
+             {specialty && <Badge variant="secondary" className="text-lg p-2 flex items-center gap-2"><Sprout className="h-5 w-5"/>{specialty}</Badge>}
+             {difficulty && <Badge variant="secondary" className="text-lg p-2 flex items-center gap-2"><Shield className="h-5 w-5"/>Niveau {difficultyMap[difficulty]}</Badge>}
+          </div>
+
           <div>
             <Label className="text-sm text-muted-foreground">
               Code de la partie

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -55,7 +56,7 @@ export default function CluePhase({ gameState, onClueSubmit }: CluePhaseProps) {
       role: you.role,
       word: you.word ?? undefined,
       otherClues: gameState.clues.map((c) => c.clue),
-      specialty: "Chirurgie", // This would come from game settings
+      specialty: gameState.specialty,
     };
     try {
       const result = await generateClueSuggestions(input);
@@ -89,6 +90,7 @@ export default function CluePhase({ gameState, onClueSubmit }: CluePhaseProps) {
             ? "C'est votre tour de donner un indice."
             : `Au tour de ${currentPlayerTurn?.name}...`}
         </CardDescription>
+        <Badge variant="secondary" className="mx-auto mt-2">{gameState.specialty}</Badge>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 min-h-[80px]">

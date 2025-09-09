@@ -1,7 +1,8 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import RoleReveal from "@/components/game/role-reveal";
 import CluePhase from "@/components/game/clue-phase";
 import VotingPhase from "@/components/game/voting-phase";
@@ -16,6 +17,8 @@ export default function GamePage() {
   const router = useRouter();
   const params = useParams();
   const gameId = params.gameId as string;
+  const searchParams = useSearchParams();
+  const specialty = searchParams.get("specialty") || "Médecine générale";
 
   useEffect(() => {
     // Initialize game state
@@ -25,8 +28,9 @@ export default function GamePage() {
       players: mockPlayers,
       clues: [],
       eliminatedPlayer: null,
+      specialty: specialty,
     });
-  }, []);
+  }, [specialty]);
 
   const nextPhase = () => {
     if (!gameState) return;
