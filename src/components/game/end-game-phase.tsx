@@ -1,4 +1,4 @@
-import { Player } from "@/lib/game-types";
+import { Player } from "@/types/game";
 import { Button } from "@/components/ui/button";
 import {
   Card,

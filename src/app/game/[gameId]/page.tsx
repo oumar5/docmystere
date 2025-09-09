@@ -6,16 +6,10 @@ import RoleReveal from "@/components/game/role-reveal";
 import CluePhase from "@/components/game/clue-phase";
 import VotingPhase from "@/components/game/voting-phase";
 import VoteResultPhase from "@/components/game/vote-result-phase";
-import { GameState, Player } from "@/lib/game-types";
+import { GameState, Player } from "@/types/game";
 import { Loader2 } from "lucide-react";
 import EndGamePhase from "@/components/game/end-game-phase";
-
-const mockPlayers: Player[] = [
-  { id: "1", name: "Vous", role: "Doctor", word: "Sinusite", isEliminated: false, isYou: true, votes: 0 },
-  { id: "2", name: "Dr. Cuddy", role: "Doctor", word: "Sinusite", isEliminated: false, isYou: false, votes: 0 },
-  { id: "3", name: "Dr. Foreman", role: "MisguidedDoctor", word: "Rhinite allergique", isEliminated: false, isYou: false, votes: 0 },
-  { id: "4", name: "Dr. Cameron", role: "MysteryDoc", word: null, isEliminated: false, isYou: false, votes: 0 },
-];
+import { mockPlayers } from "@/constants/game";
 
 export default function GamePage() {
   const [gameState, setGameState] = useState<GameState | null>(null);

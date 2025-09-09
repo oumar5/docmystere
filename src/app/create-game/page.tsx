@@ -30,6 +30,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { specialties, subSpecialties } from "@/constants/specialties";
 
 const formSchema = z.object({
   nickname: z
@@ -63,22 +64,6 @@ export default function CreateGamePage() {
     console.log("Creating game with settings:", values);
     router.push(`/lobby/${gameId}?host=true&nickname=${values.nickname}`);
   }
-
-  const specialties = [
-    { value: "chirurgie", label: "Chirurgie" },
-    { value: "cardiologie", label: "Cardiologie" },
-    { value: "dermatologie", label: "Dermatologie" },
-    { value: "neurologie", label: "Neurologie" },
-    { value: "pediatrie", label: "Pédiatrie" },
-  ];
-
-  const subSpecialties: Record<string, { value: string; label: string }[]> = {
-    chirurgie: [
-      { value: "orl", label: "ORL" },
-      { value: "orthopedie", label: "Orthopédie" },
-      { value: "viscerale", label: "Viscérale" },
-    ],
-  };
 
   const selectedSpecialty = form.watch("specialty");
 

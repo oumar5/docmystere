@@ -1,7 +1,7 @@
 import { Stethoscope } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { JoinGameDialog } from "@/components/join-game-dialog";
+import { JoinGameDialog } from "@/components/home/join-game-dialog";
 
 export default function Home() {
   return (

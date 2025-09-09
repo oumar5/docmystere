@@ -6,7 +6,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Player } from "@/lib/game-types";
+import { Player } from "@/types/game";
 import { User, Brain, HelpCircle, FileText } from "lucide-react";
 
 type RoleRevealProps = {

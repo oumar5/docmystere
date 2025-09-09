@@ -1,4 +1,4 @@
-import { GameState } from "@/lib/game-types";
+import { GameState } from "@/types/game";
 import { Button } from "@/components/ui/button";
 import {
   Card,
