@@ -49,15 +49,7 @@ export default function SoloGamePage() {
       const data = snapshot.val();
       if (data) {
         const specialtiesList: Specialty[] = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-        
-        const specialtyMap = new Map(specialtiesList.map(s => [s.id, {...s, childrenIds: [] as string[]}]));
-        specialtiesList.forEach(s => {
-          if (s.parentId && specialtyMap.has(s.parentId)) {
-            specialtyMap.get(s.parentId)?.childrenIds.push(s.id);
-          }
-        });
-
-        setSpecialties(Array.from(specialtyMap.values()));
+        setSpecialties(specialtiesList);
       }
     });
   }, []);

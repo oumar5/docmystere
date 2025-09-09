@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -33,7 +33,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
-import { List, PlusCircle } from "lucide-react";
+import { List, PlusCircle, Upload } from "lucide-react";
+import specialtiesData from "@/data/specialties.json";
+import specialtyRelationsData from "@/data/specialty-relations.json";
 
 interface Specialty {
   id: string;
@@ -99,6 +101,40 @@ export default function AdminPage() {
     }
   };
 
+  const handleImport = async () => {
+    try {
+      const specialtiesRef = ref(database, "specialties");
+      const combinedData: { [key: string]: any } = {};
+
+      for (const key in specialtiesData) {
+          combinedData[key] = {
+              // @ts-ignore
+              label: specialtiesData[key].label,
+              // @ts-ignore
+              parentId: specialtyRelationsData[key].parentId,
+              // @ts-ignore
+              childrenIds: specialtyRelationsData[key].childrenIds,
+              createdAt: serverTimestamp()
+          };
+      }
+      
+      await set(specialtiesRef, combinedData);
+
+      toast({
+        title: "Succès de l'importation",
+        description: "Les spécialités ont été importées dans la base de données.",
+      });
+    } catch (error) {
+      console.error("Error importing specialties:", error);
+      toast({
+        title: "Erreur d'importation",
+        description: "Impossible d'importer les spécialités.",
+        variant: "destructive",
+      });
+    }
+  };
+
+
   const mainSpecialties = specialties.filter((s) => !s.parentId);
 
   return (
@@ -107,6 +143,21 @@ export default function AdminPage() {
         <h1 className="text-4xl font-bold text-center font-headline text-primary">
           Panneau d'Administration
         </h1>
+
+        <Card>
+           <CardHeader>
+             <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                 <Upload />
+                 Importer des données
+                </div>
+                <Button onClick={handleImport} variant="secondary">Importer les spécialités JSON</Button>
+             </CardTitle>
+             <CardDescription>
+                Cette action importera les données depuis les fichiers JSON locaux (`/src/data`) vers Firebase, écrasant les données existantes.
+             </CardDescription>
+           </CardHeader>
+        </Card>
 
         <Card>
           <CardHeader>
@@ -197,7 +248,7 @@ export default function AdminPage() {
               </ul>
             ) : (
               <p className="text-muted-foreground">
-                Aucune spécialité trouvée. Ajoutez-en une pour commencer.
+                Aucune spécialité trouvée. Ajoutez-en une ou importez les données.
               </p>
             )}
           </CardContent>

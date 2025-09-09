@@ -1,0 +1,23 @@
+
+{
+  "medecine-interne": { "label": "Médecine Interne" },
+  "nephrologie": { "label": "Néphrologie" },
+  "rhumatologie": { "label": "Rhumatologie" },
+  "endocrinologie": { "label": "Endocrinologie" },
+  "chirurgie": { "label": "Chirurgie" },
+  "orthopedie": { "label": "Orthopédie" },
+  "chirurgie-main": { "label": "Chirurgie de la main" },
+  "chirurgie-genou": { "label": "Chirurgie du genou" },
+  "viscerale": { "label": "Chirurgie Viscérale" },
+  "urologie": { "label": "Urologie" },
+  "cardiologie": { "label": "Cardiologie" },
+  "rythmologie": { "label": "Rythmologie" },
+  "cardiologie-interventionnelle": { "label": "Cardiologie interventionnelle" },
+  "pneumologie": { "label": "Pneumologie" },
+  "dermatologie": { "label": "Dermatologie" },
+  "pediatrie": { "label": "Pédiatrie" },
+  "neurologie": { "label": "Neurologie" },
+  "psychiatrie": { "label": "Psychiatrie" },
+  "ophtalmologie": { "label": "Ophtalmologie" },
+  "orl": { "label": "ORL" }
+}
