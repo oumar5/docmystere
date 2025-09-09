@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -21,7 +22,17 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import specialties from "@/data/specialties.json";
-import type { Specialty } from "@/types/specialty";
+import specialtyRelations from "@/data/specialty-relations.json";
+
+type SpecialtyData = {
+    [key: string]: { label: string };
+}
+const specialtiesData = specialties as SpecialtyData;
+
+type SpecialtyRelationData = {
+    [key: string]: { parentId: string | null; childrenIds: string[] };
+}
+const specialtyRelationsData = specialtyRelations as SpecialtyRelationData;
 
 export default function SoloGamePage() {
   const [caseState, setCaseState] = useState<"idle" | "loading" | "loaded">("idle");
@@ -32,14 +43,19 @@ export default function SoloGamePage() {
   const [selectedSpecialtyValue, setSelectedSpecialtyValue] = useState<string>("");
   const [selectedSubSpecialtyValue, setSelectedSubSpecialtyValue] = useState<string>("");
 
-  const allSpecialties = specialties as Specialty[];
-  const mainSpecialties = allSpecialties.filter(s => !s.parent);
-  const subSpecialties = allSpecialties.filter(s => s.parent === selectedSpecialtyValue);
+  const mainSpecialties = Object.keys(specialtyRelationsData).filter(
+    (key) => specialtyRelationsData[key].parentId === null
+  );
+
+  const subSpecialties = selectedSpecialtyValue 
+    ? specialtyRelationsData[selectedSpecialtyValue].childrenIds 
+    : [];
 
 
   const handleGenerateCase = async () => {
     const specialtyToUse = selectedSubSpecialtyValue || selectedSpecialtyValue;
-    const specialtyLabelToUse = allSpecialties.find(s => s.value === specialtyToUse)?.label;
+    if (!specialtyToUse) return;
+    const specialtyLabelToUse = specialtiesData[specialtyToUse]?.label;
     if (!specialtyLabelToUse) return;
 
     setCaseState("loading");
@@ -116,9 +132,9 @@ export default function SoloGamePage() {
                       <SelectValue placeholder="Choisir une spécialité..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {mainSpecialties.map((spec) => (
-                        <SelectItem key={spec.value} value={spec.value}>
-                          {spec.label}
+                      {mainSpecialties.map((specKey) => (
+                        <SelectItem key={specKey} value={specKey}>
+                          {specialtiesData[specKey].label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -129,9 +145,9 @@ export default function SoloGamePage() {
                          <SelectValue placeholder="Choisir une sous-spécialité..." />
                        </SelectTrigger>
                        <SelectContent>
-                         {subSpecialties.map((subSpec) => (
-                           <SelectItem key={subSpec.value} value={subSpec.value}>
-                             {subSpec.label}
+                         {subSpecialties.map((subSpecKey) => (
+                           <SelectItem key={subSpecKey} value={subSpecKey}>
+                             {specialtiesData[subSpecKey].label}
                            </SelectItem>
                          ))}
                        </SelectContent>

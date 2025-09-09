@@ -1,0 +1,83 @@
+
+{
+  "medecine-interne": {
+    "parentId": null,
+    "childrenIds": ["nephrologie", "rhumatologie"]
+  },
+  "nephrologie": {
+    "parentId": "medecine-interne",
+    "childrenIds": []
+  },
+  "rhumatologie": {
+    "parentId": "medecine-interne",
+    "childrenIds": []
+  },
+  "chirurgie": {
+    "parentId": null,
+    "childrenIds": ["orthopedie", "viscerale", "urologie", "orl"]
+  },
+  "orthopedie": {
+    "parentId": "chirurgie",
+    "childrenIds": ["chirurgie-main", "chirurgie-genou"]
+  },
+  "chirurgie-main": {
+    "parentId": "orthopedie",
+    "childrenIds": []
+  },
+  "chirurgie-genou": {
+    "parentId": "orthopedie",
+    "childrenIds": []
+  },
+  "viscerale": {
+    "parentId": "chirurgie",
+    "childrenIds": []
+  },
+  "urologie": {
+    "parentId": "chirurgie",
+    "childrenIds": []
+  },
+  "orl": {
+    "parentId": "chirurgie",
+    "childrenIds": []
+  },
+  "cardiologie": {
+    "parentId": null,
+    "childrenIds": ["rythmologie", "cardiologie-interventionnelle"]
+  },
+  "rythmologie": {
+    "parentId": "cardiologie",
+    "childrenIds": []
+  },
+  "cardiologie-interventionnelle": {
+    "parentId": "cardiologie",
+    "childrenIds": []
+  },
+  "dermatologie": {
+    "parentId": null,
+    "childrenIds": []
+  },
+  "neurologie": {
+    "parentId": null,
+    "childrenIds": []
+  },
+  "pediatrie": {
+    "parentId": null,
+    "childrenIds": []
+  },
+  "gastro-enterologie": {
+    "parentId": null,
+    "childrenIds": []
+  },
+  "pneumologie": {
+    "parentId": null,
+    "childrenIds": []
+  },
+  "endocrinologie": {
+    "parentId": null,
+    "childrenIds": []
+  },
+  "infectiologie": {
+    "parentId": null,
+    "childrenIds": []
+  }
+}

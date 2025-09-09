@@ -1,18 +1,23 @@
 
-[
-  { "value": "chirurgie", "label": "Chirurgie" },
-  { "value": "orl", "label": "ORL", "parent": "chirurgie" },
-  { "value": "orthopedie", "label": "Orthopédie", "parent": "chirurgie" },
-  { "value": "viscerale", "label": "Viscérale", "parent": "chirurgie" },
-  { "value": "urologie", "label": "Urologie", "parent": "chirurgie" },
-  { "value": "cardiologie", "label": "Cardiologie" },
-  { "value": "rythmologie", "label": "Rythmologie", "parent": "cardiologie" },
-  { "value": "cardiologie-interventionnelle", "label": "Cardiologie interventionnelle", "parent": "cardiologie" },
-  { "value": "dermatologie", "label": "Dermatologie" },
-  { "value": "neurologie", "label": "Neurologie" },
-  { "value": "pediatrie", "label": "Pédiatrie" },
-  { "value": "gastro-enterologie", "label": "Gastro-entérologie" },
-  { "value": "pneumologie", "label": "Pneumologie" },
-  { "value": "endocrinologie", "label": "Endocrinologie" },
-  { "value": "infectiologie", "label": "Infectiologie" }
-]
+{
+  "medecine-interne": { "label": "Médecine Interne" },
+  "nephrologie": { "label": "Néphrologie" },
+  "rhumatologie": { "label": "Rhumatologie" },
+  "chirurgie": { "label": "Chirurgie" },
+  "orthopedie": { "label": "Orthopédie" },
+  "chirurgie-main": { "label": "Chirurgie de la main" },
+  "chirurgie-genou": { "label": "Chirurgie du genou" },
+  "viscerale": { "label": "Viscérale" },
+  "urologie": { "label": "Urologie" },
+  "cardiologie": { "label": "Cardiologie" },
+  "rythmologie": { "label": "Rythmologie" },
+  "cardiologie-interventionnelle": { "label": "Cardiologie interventionnelle" },
+  "dermatologie": { "label": "Dermatologie" },
+  "neurologie": { "label": "Neurologie" },
+  "pediatrie": { "label": "Pédiatrie" },
+  "gastro-enterologie": { "label": "Gastro-entérologie" },
+  "pneumologie": { "label": "Pneumologie" },
+  "endocrinologie": { "label": "Endocrinologie" },
+  "infectiologie": { "label": "Infectiologie" },
+  "orl": { "label": "ORL" }
+}

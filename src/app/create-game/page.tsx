@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,7 +32,17 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import specialties from "@/data/specialties.json";
-import type { Specialty } from "@/types/specialty";
+import specialtyRelations from "@/data/specialty-relations.json";
+
+type SpecialtyData = {
+    [key: string]: { label: string };
+}
+const specialtiesData = specialties as SpecialtyData;
+
+type SpecialtyRelationData = {
+    [key: string]: { parentId: string | null; childrenIds: string[] };
+}
+const specialtyRelationsData = specialtyRelations as SpecialtyRelationData;
 
 const formSchema = z.object({
   nickname: z
@@ -67,9 +78,14 @@ export default function CreateGamePage() {
   }
 
   const selectedSpecialtyValue = form.watch("specialty");
-  const allSpecialties = specialties as Specialty[];
-  const mainSpecialties = allSpecialties.filter(spec => !spec.parent);
-  const subSpecialties = allSpecialties.filter(s => s.parent === selectedSpecialtyValue);
+  
+  const mainSpecialties = Object.keys(specialtyRelationsData).filter(
+    (key) => specialtyRelationsData[key].parentId === null
+  );
+
+  const subSpecialties = selectedSpecialtyValue 
+    ? specialtyRelationsData[selectedSpecialtyValue].childrenIds 
+    : [];
 
 
   return (
@@ -122,9 +138,9 @@ export default function CreateGamePage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {mainSpecialties.map((spec) => (
-                            <SelectItem key={spec.value} value={spec.value}>
-                              {spec.label}
+                          {mainSpecialties.map((specKey) => (
+                            <SelectItem key={specKey} value={specKey}>
+                              {specialtiesData[specKey].label}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -150,9 +166,9 @@ export default function CreateGamePage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {subSpecialties.map((subSpec) => (
-                              <SelectItem key={subSpec.value} value={subSpec.value}>
-                                {subSpec.label}
+                          {subSpecialties.map((subSpecKey) => (
+                              <SelectItem key={subSpecKey} value={subSpecKey}>
+                                {specialtiesData[subSpecKey].label}
                               </SelectItem>
                             ))}
                         </SelectContent>
