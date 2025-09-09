@@ -32,17 +32,22 @@ export default function SoloGamePage() {
   const [selectedSpecialtyValue, setSelectedSpecialtyValue] = useState<string>("");
   const [selectedSubSpecialtyValue, setSelectedSubSpecialtyValue] = useState<string>("");
 
-  const selectedSpecialty = (specialties as Specialty[]).find(s => s.value === selectedSpecialtyValue);
+  const allSpecialties = specialties as Specialty[];
+  const mainSpecialties = allSpecialties.filter(s => !s.parent);
+  const selectedSpecialty = allSpecialties.find(s => s.value === selectedSpecialtyValue);
+  const subSpecialties = selectedSpecialty ? allSpecialties.filter(s => s.parent === selectedSpecialty.value) : [];
+
 
   const handleGenerateCase = async () => {
-    const specialtyToUse = selectedSpecialty?.subSpecialties?.find(s => s.value === selectedSubSpecialtyValue) || selectedSpecialty;
-    if (!specialtyToUse) return;
+    const specialtyLabelToUse = allSpecialties.find(s => s.value === (selectedSubSpecialtyValue || selectedSpecialtyValue))?.label;
+    if (!specialtyLabelToUse) return;
+
     setCaseState("loading");
     setEvaluation(null);
     setDiagnosis("");
     setEvaluationState("idle");
     try {
-      const newCase = await generateSoloCase({ specialty: specialtyToUse.label });
+      const newCase = await generateSoloCase({ specialty: specialtyLabelToUse });
       setClinicalCase(newCase);
       setCaseState("loaded");
     } catch (error) {
@@ -72,6 +77,8 @@ export default function SoloGamePage() {
     setCaseState('idle');
     setSelectedSpecialtyValue("");
     setSelectedSubSpecialtyValue("");
+    setClinicalCase(null);
+    setEvaluation(null);
   }
 
 
@@ -109,20 +116,20 @@ export default function SoloGamePage() {
                       <SelectValue placeholder="Choisir une spécialité..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {specialties.map((spec) => (
+                      {mainSpecialties.map((spec) => (
                         <SelectItem key={spec.value} value={spec.value}>
                           {spec.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                   {selectedSpecialty && selectedSpecialty.subSpecialties && (
+                   {selectedSpecialty && subSpecialties.length > 0 && (
                      <Select onValueChange={setSelectedSubSpecialtyValue} value={selectedSubSpecialtyValue}>
                        <SelectTrigger>
                          <SelectValue placeholder="Choisir une sous-spécialité..." />
                        </SelectTrigger>
                        <SelectContent>
-                         {selectedSpecialty.subSpecialties.map((subSpec) => (
+                         {subSpecialties.map((subSpec) => (
                            <SelectItem key={subSpec.value} value={subSpec.value}>
                              {subSpec.label}
                            </SelectItem>

@@ -119,7 +119,7 @@ export default function CreateGamePage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {specialties.map((spec) => (
+                          {(specialties as Specialty[]).filter(spec => !spec.parent).map((spec) => (
                             <SelectItem key={spec.value} value={spec.value}>
                               {spec.label}
                             </SelectItem>
@@ -139,7 +139,7 @@ export default function CreateGamePage() {
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        disabled={!selectedSpecialty || !selectedSpecialty.subSpecialties}
+                        disabled={!selectedSpecialty || !(specialties as Specialty[]).some(s => s.parent === selectedSpecialty.value)}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -147,7 +147,7 @@ export default function CreateGamePage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {selectedSpecialty?.subSpecialties?.map((subSpec) => (
+                          {(specialties as Specialty[]).filter(s => s.parent === selectedSpecialty?.value).map((subSpec) => (
                               <SelectItem key={subSpec.value} value={subSpec.value}>
                                 {subSpec.label}
                               </SelectItem>

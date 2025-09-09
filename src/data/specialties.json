@@ -1,25 +1,13 @@
+
 [
-  {
-    "value": "chirurgie",
-    "label": "Chirurgie",
-    "subSpecialties": [
-      { "value": "orl", "label": "ORL" },
-      { "value": "orthopedie", "label": "Orthopédie" },
-      { "value": "viscerale", "label": "Viscérale" },
-      { "value": "urologie", "label": "Urologie" }
-    ]
-  },
-  {
-    "value": "cardiologie",
-    "label": "Cardiologie",
-    "subSpecialties": [
-      { "value": "rythmologie", "label": "Rythmologie" },
-      {
-        "value": "cardiologie-interventionnelle",
-        "label": "Cardiologie interventionnelle"
-      }
-    ]
-  },
+  { "value": "chirurgie", "label": "Chirurgie" },
+  { "value": "orl", "label": "ORL" },
+  { "value": "orthopedie", "label": "Orthopédie" },
+  { "value": "viscerale", "label": "Viscérale" },
+  { "value": "urologie", "label": "Urologie" },
+  { "value": "cardiologie", "label": "Cardiologie" },
+  { "value": "rythmologie", "label": "Rythmologie" },
+  { "value": "cardiologie-interventionnelle", "label": "Cardiologie interventionnelle" },
   { "value": "dermatologie", "label": "Dermatologie" },
   { "value": "neurologie", "label": "Neurologie" },
   { "value": "pediatrie", "label": "Pédiatrie" },
